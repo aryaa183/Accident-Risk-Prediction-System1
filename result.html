@@ -1,0 +1,171 @@
+<!-- templates/result.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Accident Risk Report</title>
+<style>
+  body {background:#000;color:#0ff;font-family:Arial,sans-serif;margin:0;padding:0;}
+  .container {max-width:900px;margin:auto;padding:20px;}
+  h1,h2,h3,h4,h5 {color:#0ff;}
+  .card {background:#111;border:1px solid #0ff;border-radius:10px;padding:15px;margin:15px 0;}
+  .section-title {border-bottom:1px solid #0ff;padding-bottom:5px;margin-bottom:10px;}
+  ul {list-style:none;padding-left:0;}
+  li {padding:3px 0;}
+  .btn {background:#0ff;color:#000;padding:8px 12px;border:none;border-radius:5px;cursor:pointer;margin-right:10px;font-weight:bold;}
+  .btn:hover {background:#00f;color:#fff;}
+  .toast {position:fixed;bottom:20px;right:20px;background:#0ff;color:#000;padding:12px 20px;border-radius:5px;display:none;font-weight:bold;z-index:999;}
+  .risk-high {color:#f00;font-weight:bold;}
+  .risk-medium {color:#ff9900;font-weight:bold;}
+  .risk-low {color:#0f0;font-weight:bold;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🚦 Smart Accident Risk Report</h1>
+  <h3>Generated at: {{ result.timestamp }}</h3>
+
+  <!-- Risk Level -->
+  <div class="card">
+    <h2>Risk Level</h2>
+    {% if result.level=='HIGH' %}
+      <p class="risk-high">⚠️ HIGH RISK — Avoid if possible</p>
+    {% elif result.level=='MEDIUM' %}
+      <p class="risk-medium">⚠️ MEDIUM RISK — Drive cautiously</p>
+    {% else %}
+      <p class="risk-low">✅ LOW RISK — Safe to drive</p>
+    {% endif %}
+    <p>Overall Score: {{ result.overall_score }}</p>
+  </div>
+
+  <!-- Route Details -->
+  <div class="card">
+    <h2>🛣️ Route Details</h2>
+    <ul>
+      <li><strong>From:</strong> {{ result.inputs.start_point }}</li>
+      <li><strong>To:</strong> {{ result.inputs.destination }}</li>
+      <li><strong>Road Type:</strong> {{ result.inputs.road_type }}</li>
+      <li><strong>Weather:</strong> {{ result.inputs.weather }}</li>
+      <li><strong>Lighting:</strong> {{ result.inputs.lighting }}</li>
+      <li><strong>Speed Limit:</strong> {{ result.inputs.speed_limit }} km/h</li>
+      <li><strong>Recommended Safe Speed:</strong> {{ result.recommended_speed }} km/h</li>
+    </ul>
+  </div>
+
+  <!-- Risk Breakdown -->
+  <div class="card">
+    <h2>📊 Risk Breakdown</h2>
+    <ul>
+      <li>Weather Risk: {{ result.breakdown.weather_risk }}</li>
+      <li>Road Condition Risk: {{ result.breakdown.road_condition_risk }}</li>
+      <li>Time of Day Risk: {{ result.breakdown.time_of_day_risk }}</li>
+      <li>Driver Risk: {{ result.breakdown.driver_risk }}</li>
+      <li>Distance/Fatigue Risk: {{ result.breakdown.distance_fatigue_risk }}</li>
+    </ul>
+  </div>
+
+  <!-- Weather Tips -->
+  <div class="card">
+    <h2>🌦️ Dynamic Weather Tips</h2>
+    <ul>
+      {% for tip in result.weather_tips %}
+        <li>{{ tip }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Hazards -->
+  <div class="card">
+    <h2>⚠️ Detected Hazards</h2>
+    <ul>
+      {% for h in result.hazards %}
+        <li>{{ h }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Vehicle Readiness -->
+  <div class="card">
+    <h2>🛠️ Vehicle Readiness Checklist</h2>
+    <ul>
+      {% for vt in result.vehicle_tips %}
+        <li>{{ vt }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Nearby Emergency Services -->
+  <div class="card">
+    <h2>🏥 Nearby Emergency Services</h2>
+    <ul>
+      {% for s in result.services %}
+        <li>{{ s.name }} ({{ s.type }}) — ETA: {{ s.eta_min }} mins</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Alternate Routes -->
+  <div class="card">
+    <h2>🛣️ Alternate Safer Routes</h2>
+    <ul>
+      {% for r in result.alternates %}
+        <li>
+          <strong>{{ r.name }}</strong> — Extra Time: {{ r.extra_time_min }} mins, Risk Score: {{ r.risk_score }}, Reason: {{ r.reason }}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Frequent High-Risk Patterns (Apriori) -->
+  {% if result.patterns_detected %}
+  <div class="card">
+    <h2>⚠️ Frequent High-Risk Patterns Detected</h2>
+    <ul>
+      {% for pattern in result.patterns_detected %}
+        <li>{{ pattern }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Quick Actions -->
+  <div class="card">
+    <h2>⚡ Quick Actions</h2>
+    <button class="btn" onclick="sendETA()">📩 Send ETA to Family</button>
+    <button class="btn" onclick="triggerSOS()">🚨 Emergency SOS</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Action Completed!</div>
+
+<script>
+function showToast(message) {
+    const t = document.getElementById('toast');
+    t.innerText = message;
+    t.style.display = 'block';
+    setTimeout(()=>{ t.style.display='none'; }, 2500);
+}
+
+function sendETA() {
+    fetch('/api/send_eta',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({to_number:'+911234567890',message:'ETA from Accident Risk App'})
+    }).then(res=>res.json()).then(data=>{
+        showToast('ETA sent to family ✔️');
+    }).catch(()=>{showToast('Error sending ETA ❌')});
+}
+
+function triggerSOS() {
+    fetch('/api/sos',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({location:'mock coords'})
+    }).then(res=>res.json()).then(data=>{
+        showToast('Emergency SOS triggered ✔️');
+    }).catch(()=>{showToast('Error triggering SOS ❌')});
+}
+</script>
+</body>
+</html>

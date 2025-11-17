@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Accident Risk Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            font-family: 'Poppins', sans-serif;
+        }
+        .glass {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .map-preview {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+    </style>
+</head>
+
+<body class="p-6">
+
+    <div class="max-w-5xl mx-auto glass p-8 shadow-xl">
+
+        <h1 class="text-4xl font-bold text-center text-teal-300 mb-2">
+            🛣️ Smart Accident Risk Predictor
+        </h1>
+        <p class="text-center text-gray-300 mb-8">
+            Enter your trip details to get real-time risk analysis, safer route suggestions, and hotspot awareness.
+        </p>
+
+        <form action="/predict" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Start -->
+            <div>
+                <label class="text-gray-200 font-semibold">Starting Point</label>
+                <input type="text" name="start_point" placeholder="e.g., Pune"
+                    class="w-full p-3 rounded mt-2 text-black" required>
+            </div>
+
+            <!-- Destination -->
+            <div>
+                <label class="text-gray-200 font-semibold">Destination</label>
+                <input type="text" name="destination" placeholder="e.g., Mumbai"
+                    class="w-full p-3 rounded mt-2 text-black" required>
+            </div>
+
+            <!-- Time -->
+            <div>
+                <label class="text-gray-200 font-semibold">Time of Day</label>
+                <select name="time_of_day" class="w-full p-3 rounded mt-2 text-black">
+                    <option>Morning</option>
+                    <option>Afternoon</option>
+                    <option>Evening</option>
+                    <option>Night</option>
+                </select>
+            </div>
+
+            <!-- Weather -->
+            <div>
+                <label class="text-gray-200 font-semibold">Weather</label>
+                <select name="weather" class="w-full p-3 rounded mt-2 text-black">
+                    <option>Clear</option>
+                    <option>Rainy</option>
+                    <option>Foggy</option>
+                    <option>Windy</option>
+                </select>
+            </div>
+
+            <!-- Road Type -->
+            <div>
+                <label class="text-gray-200 font-semibold">Road Type</label>
+                <select name="road_type" class="w-full p-3 rounded mt-2 text-black">
+                    <option>Highway</option>
+                    <option>City Road</option>
+                    <option>Rural</option>
+                </select>
+            </div>
+
+            <!-- Lighting -->
+            <div>
+                <label class="text-gray-200 font-semibold">Lighting</label>
+                <select name="lighting" class="w-full p-3 rounded mt-2 text-black">
+                    <option>Daylight</option>
+                    <option>Night Lit</option>
+                    <option>Night Unlit</option>
+                </select>
+            </div>
+
+            <!-- Speed -->
+            <div>
+                <label class="text-gray-200 font-semibold">Speed Limit</label>
+                <input type="number" name="speed_limit" placeholder="e.g., 100"
+                    class="w-full p-3 rounded mt-2 text-black">
+            </div>
+
+            <!-- Age -->
+            <div>
+                <label class="text-gray-200 font-semibold">Driver Age</label>
+                <input type="number" name="driver_age" placeholder="e.g., 25"
+                    class="w-full p-3 rounded mt-2 text-black">
+            </div>
+
+            <!-- Submit -->
+            <div class="md:col-span-2 text-center mt-6">
+                <button class="bg-teal-400 hover:bg-teal-500 text-black px-8 py-3 rounded-lg font-bold">
+                    🔍 Predict Risk
+                </button>
+            </div>
+        </form>
+
+        <!-- MAP PREVIEW BLOCK -->
+        <div class="mt-10">
+            <h2 class="text-2xl text-teal-300 font-semibold mb-3">🗺 Static Route Map Preview</h2>
+            <div class="map-preview">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/Mumbai_Pune_Expressway_Map.png" class="w-full">
+            </div>
+            <p class="text-gray-400 text-sm mt-2">*Static map for demo — dynamic GPS routing available in extended version.</p>
+        </div>
+
+        <!-- HOTSPOT VISUALIZER -->
+        <div class="mt-10">
+            <h2 class="text-2xl text-red-300 font-semibold mb-3">🔥 Accident Hotspot Visualizer</h2>
+            <div class="map-preview">
+                <img src="https://i.imgur.com/0P9lPYo.png" class="w-full">
+            </div>
+            <p class="text-gray-400 text-sm mt-2">Highlighted accident-prone areas on major highways.</p>
+        </div>
+
+    </div>
+</body>
+</html>
